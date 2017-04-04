@@ -11,7 +11,45 @@ public class Cell{
     setDomain(inputDomain);
     setRow(inputRow);
     setColumn(inputCol);
+    //printDomain();
 
+  }
+
+  public void printDomain(){
+    for (int i = 0; i < this.Domain.size(); i++) {
+      System.out.print(this.Domain.get(i)+" ");
+    }
+    //System.out.println();
+  }
+
+  public boolean equals(Cell test){
+    if(getRow() == test.getRow() && getColumn() == test.getColumn()){
+      return true;
+    }
+    return false;
+  }
+
+  public void constrainDomain(ArrayList<Integer> inputDomain){
+    //System.out.println( " break " );
+    for (int i = 0; i < inputDomain.size(); i++) {
+      int value = inputDomain.get(i);
+      if(this.Domain.contains(value)){
+          removeFromDomain(value);
+      }
+    }
+  }
+
+  public int getDomainVal(){
+    if(Domain.size() > 0){
+      return Domain.get(0);
+    }else{
+      return Domain.size();
+    }
+  }
+
+  public void removeFromDomain(int input){
+    //printDomain();
+    this.Domain.remove(this.Domain.indexOf(input));
   }
 
   public ArrayList<Integer> getDomain(){
@@ -26,7 +64,7 @@ public class Cell{
     this.isPreset = inputPreset;
   }
 
-  private void setDomain(ArrayList<Integer> inputDomain) {
+  public void setDomain(ArrayList<Integer> inputDomain) {
     this.Domain = inputDomain;
   }
 

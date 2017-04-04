@@ -11,144 +11,119 @@ public class Agent{
   */
   private Integer[][] startPuzzle;
   private Cell[][] cellGrid;
-  private Queue<Arc> queueConstraints; //Has queue for storing the pairs of constrained cells
+  private LinkedList<Arc> queueConstraints; //Has queue for storing the pairs of constrained cells
+  private Grid grid;
   public Agent(Integer[][] inputGrid){
+    this.queueConstraints = new LinkedList<Arc>();
+    this.grid = new Grid(inputGrid);
     this.startPuzzle = inputGrid;
     this.cellGrid = createCells();
-
     //Create pairs of constraints
     initQ();
-
+    printSolution();
+    System.out.println( "hi" );
     //Solve sudoku puzzle using AC3 algorithm
     Boolean solvable = solveAC3();
+    printSolution();
+
+  }
+
+  private void printSolution(){
+    for (int i = 0; i < 9; i++) {
+      for (int j = 0; j < 9; j++) {
+        int result = cellGrid[i][j].getDomainVal();
+        System.out.print(result+ ", ");
+      }
+      System.out.println();
+    }
   }
 
   private Boolean solveAC3(){
       while(!this.queueConstraints.isEmpty()){
-        Arc current = queueConstraints.remove();
-        if(revise(current) == true){
-          Cell currentX = current.getX();
-          ArrayList<Integer> currentXDomain = currentX.getDomain();
-          if(currentXDomain.size() == 0){
-            return false;
-          }
+        Arc current = queueConstraints.peek();
+        if(current.revise()){
+          //There is a value that in current.X that current.Y does not contain.
+          //I can't simply remove that value from Y, I need to remove other values from X and keep that one
+          this.queueConstraints = this.grid.constrainCol(current.getX().getRow(), current.getX().getColumn(), this.cellGrid, this.queueConstraints); //Assign arc constraints for all entries in that row
+          this.queueConstraints = this.grid.constrainRow(current.getX().getRow(), current.getX().getColumn(), this.cellGrid, this.queueConstraints); //Assign arc constraints for all entries in that column
+          this.queueConstraints = this.grid.constrainSquare(current.getX().getRow(), current.getX().getColumn(), this.cellGrid, this.queueConstraints); //Assign arc constraints for all entries in grid          
+        }else{
+          //return false;
         }
+        queueConstraints.remove();
       }
       return true;
   }
-
-  private Boolean revise(Arc inputArc){
-    Boolean revised = false;
-    Cell currentX = inputArc.getX();
-    ArrayList<Integer> xDomain = currentX.getDomain();
-
-    System.out.println(xDomain.size());
-    return true;
-  }
-
+  /*
+  * We need to set each cell's neighbors and constrain their domains based on that
+  * 1) Set neighbors after creation
+  */
   private void initQ(){
     //For each entry in cellGrid we want to create an arc of the entry and its constraining neighbor
     for (Integer i = 0; i<9; i++) {
-      System.out.println("Here we are");
-      //Assign arc constraints for all entries in that row
-      //Assign arc constraints for all entries in that column
-      for (Integer j = 0; j<8; j++) {
-        System.out.println("Here we go");
-        for (Integer t = j+1; t<8; t++) {
-            System.out.println("Here we go");
-            Arc tempRow = new Arc(this.cellGrid[i][j],this.cellGrid[i][t]);   // All entries in
-
-            Arc tempCol = new Arc(this.cellGrid[j][i],this.cellGrid[t][i]);  // All entries in column
-            System.out.println("Here we dont");
-            queueConstraints.add(tempRow);
-            queueConstraints.add(tempCol);
-            System.out.println("Here we are");
-            //Assign arc constraints for all entries in grid
-            if(i%3 == 0){
-              System.out.println("Start");
-              if(j%3 == 0){
-                Arc temp11 = new Arc(this.cellGrid[i][j], this.cellGrid[i+1][j+1]);
-                Arc temp12 = new Arc(this.cellGrid[i][j], this.cellGrid[i+1][j+2]);
-                Arc temp21 = new Arc(this.cellGrid[i][j], this.cellGrid[i+2][j+1]);
-                Arc temp22 = new Arc(this.cellGrid[i][j], this.cellGrid[i+2][j+2]);
-                queueConstraints.add(temp11);
-                queueConstraints.add(temp12);
-                queueConstraints.add(temp21);
-                queueConstraints.add(temp22);
-              }else if(j%3 == 1){
-                Arc temp10 = new Arc(this.cellGrid[i][j], this.cellGrid[i+1][j-1]);
-                Arc temp12 = new Arc(this.cellGrid[i][j], this.cellGrid[i+1][j+1]);
-                Arc temp20 = new Arc(this.cellGrid[i][j], this.cellGrid[i+2][j-1]);
-                Arc temp22 = new Arc(this.cellGrid[i][j], this.cellGrid[i+2][j+1]);
-                queueConstraints.add(temp10);
-                queueConstraints.add(temp12);
-                queueConstraints.add(temp20);
-                queueConstraints.add(temp22);
-              }else{
-                /*
-                Arc temp10 = new Arc(this.cellGrid[i][j], this.cellGrid[i+1][j-2]);
-                Arc temp11 = new Arc(this.cellGrid[i][j], this.cellGrid[i+1][j-1]);
-                Arc temp20 = new Arc(this.cellGrid[i][j], this.cellGrid[i+2][j-2]);
-                Arc temp21 = new Arc(this.cellGrid[i][j], this.cellGrid[i+2][j-1]);
-                queueConstraints.add(temp10);
-                queueConstraints.add(temp11);
-                queueConstraints.add(temp20);
-                queueConstraints.add(temp21);
-                */
-              }
-            }else if(i%3 == 1){
-              if(j%3 == 0){
-                Arc temp21 = new Arc(this.cellGrid[i][j], this.cellGrid[i+1][j+1]);
-                Arc temp22 = new Arc(this.cellGrid[i][j], this.cellGrid[i+1][j+2]);
-                queueConstraints.add(temp21);
-                queueConstraints.add(temp22);
-              }else if(j%3 == 1){
-                Arc temp20 = new Arc(this.cellGrid[i][j], this.cellGrid[i+1][j-1]);
-                Arc temp22 = new Arc(this.cellGrid[i][j], this.cellGrid[i+1][j+1]);
-                queueConstraints.add(temp20);
-                queueConstraints.add(temp22);
-              }else{
-                /*
-                Arc temp20 = new Arc(this.cellGrid[i][j], this.cellGrid[i+1][j-1]);
-                Arc temp21 = new Arc(this.cellGrid[i][j], this.cellGrid[i+1][j-2]);
-                queueConstraints.add(temp20);
-                queueConstraints.add(temp21);
-                */
-              }
-            }
-          }
-        }
+      for (Integer j = 0; j<9; j++) {
+          this.queueConstraints = this.grid.constrainCol(i, j, this.cellGrid, this.queueConstraints); //Assign arc constraints for all entries in that row
+          this.queueConstraints = this.grid.constrainRow(i, j, this.cellGrid, this.queueConstraints); //Assign arc constraints for all entries in that column
+          this.queueConstraints = this.grid.constrainSquare(i, j, this.cellGrid, this.queueConstraints); //Assign arc constraints for all entries in grid
       }
     }
-
-  private Cell[][] createCells(){
-    ArrayList<Integer> domain = fillDomain();
-    Cell[][] result = new Cell[9][9];
-
-    for(Integer i = 0; i < 9; i++){
-      for (Integer j = 0; j< 9; j++){
-        if(this.startPuzzle[i][j] == -1){
-          //The value of [i][j] == -1 then we can say that the domain is 1-9
-          Cell temp = new Cell(domain,i,j);
-          result[i][j] = temp;
-        }else{
-          //Else the domain is this.startPuzzle[i][j]
-          ArrayList<Integer> cellDomain = new ArrayList<Integer>();
-          cellDomain.add(this.startPuzzle[i][j]);
-          Cell temp = new Cell(cellDomain, i, j);
-          result[i][j] = temp;
-        }
-      }
-    }
-
-    return result;
   }
 
 
+  private Cell[][] createCells(){
+    Cell[][] result = new Cell[9][9];
+    for(Integer i = 0; i < 9; i++){
+      ArrayList<Integer> rowDomain = new ArrayList<Integer>();  //Start each row with a rowDomain 1 - 9
+      ArrayList<Integer> colDomain = new ArrayList<Integer>();
+      for (Integer j = 0; j< 9; j++){
+        if(result[i][j] == null){
+          result[i][j] = cellCreator(i,j);
+        }
+        if(result[j][i] == null){
+          result[j][i] = cellCreator(j,i);
+        }
+        if(startPuzzle[i][j] != -1){
+          rowDomain.add(startPuzzle[i][j]);
+        }
+        if(startPuzzle[j][i] != -1){
+          colDomain.add(startPuzzle[j][i]);
+        }
+
+      }
+      printThisDomain(rowDomain);
+      System.out.println( " ughh" );
+      result = this.grid.constrainDomain(rowDomain, result, i, true); //Constrain all entries in row
+      result = this.grid.constrainDomain(colDomain, result, i, false); //Constrain all entries in column
+    }
+    result = this.grid.constrainDomainSquare(result);
+    return result;
+  }
+
+  private Cell cellCreator(Integer row, Integer  column){
+    Cell result;
+
+    if(this.startPuzzle[row][column] != -1){
+      ArrayList<Integer> domain = new ArrayList<Integer>();
+      domain.add(this.startPuzzle[row][column]);
+      result = new Cell(domain, row,  column);
+    }else{
+      ArrayList<Integer> baseDomain = new ArrayList<Integer>();
+      baseDomain = fillDomain();
+      result = new Cell(baseDomain,row, column);
+    }
+    return result;
+  }
+
+  public void printThisDomain(ArrayList<Integer> input){
+    for (int i = 0; i < input.size(); i++) {
+      System.out.print(input.get(i)+" and ");
+    }
+    System.out.println();
+  }
   //For each cell's domain, we need to start at 1-9
   private ArrayList<Integer> fillDomain(){
     ArrayList<Integer> result = new ArrayList<Integer>();
-    for(Integer i = 0; i < 9; i++){
+    for(Integer i = 1; i < 10; i++){
       result.add(i);
     }
     return result;
