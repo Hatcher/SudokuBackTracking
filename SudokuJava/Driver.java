@@ -48,6 +48,9 @@ public class Driver{
     grid[8][4] = 1;
     grid[8][6] = 3;
 
+    Reader readerOfFile = new Reader("./SudokuPuzzles.csv", ",");
+    grid = readerOfFile.getGrid();
+
 
 
     Agent solver = new Agent(grid);
