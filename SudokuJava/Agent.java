@@ -3,10 +3,6 @@ import java.util.*;
 
 public class Agent{
   /*
-  * The sudoku problem is a csp that is solvable using an inference-csp
-  */
-
-  /*
   * Create an agent who stores our input grid.
   */
   private Integer[][] startPuzzle;
@@ -18,11 +14,7 @@ public class Agent{
     this.grid = new Grid(inputGrid);
     this.startPuzzle = inputGrid;
     this.cellGrid = createCells();
-    //Create pairs of constraints
     initQ();
-    //printSolution();
-    //System.out.println( "hi" );
-    //Solve sudoku puzzle using AC3 algorithm
     Boolean solvable = solveAC3();
     printSolution();
 
@@ -42,9 +34,6 @@ public class Agent{
       while(!this.queueConstraints.isEmpty()){
         Arc current = queueConstraints.peek();
         if(current.revise()){
-          //There is a value that in current.X that current.Y does not contain.
-          //I can't simply remove that value from Y, I need to remove other values from X and keep that one
-          //System.out.println( " hi " );
           this.queueConstraints = this.grid.constrainCol(current.getX().getColumn(), current.getX().getRow(), this.cellGrid, this.queueConstraints, false); //Assign arc constraints for all entries in that row
           this.queueConstraints = this.grid.constrainRow(current.getX().getColumn(), current.getX().getRow(), this.cellGrid, this.queueConstraints, false); //Assign arc constraints for all entries in that column
           this.queueConstraints = this.grid.constrainSquare(current.getX().getColumn(), current.getX().getRow(), this.cellGrid, this.queueConstraints, false); //Assign arc constraints for all entries in grid
@@ -55,12 +44,8 @@ public class Agent{
       }
       return true;
   }
-  /*
-  * We need to set each cell's neighbors and constrain their domains based on that
-  * 1) Set neighbors after creation
-  */
+
   private void initQ(){
-    //For each entry in cellGrid we want to create an arc of the entry and its constraining neighbor
     for (Integer i = 0; i<9; i++) {
       for (Integer j = 0; j<9; j++) {
           this.queueConstraints = this.grid.constrainCol(i, j, this.cellGrid, this.queueConstraints, true); //Assign arc constraints for all entries in that row
