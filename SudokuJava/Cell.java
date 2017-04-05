@@ -16,10 +16,12 @@ public class Cell{
   }
 
   public void printDomain(){
+    System.out.println( "" );
+    System.out.print( " row " + this.row + " column " + this.column + ": " );
     for (int i = 0; i < this.Domain.size(); i++) {
       System.out.print(this.Domain.get(i)+" ");
     }
-    //System.out.println();
+    System.out.println("");
   }
 
   public boolean equals(Cell test){
@@ -43,6 +45,7 @@ public class Cell{
     if(Domain.size() > 0){
       return Domain.get(0);
     }else{
+      System.out.println( "im less" );
       return Domain.size();
     }
   }

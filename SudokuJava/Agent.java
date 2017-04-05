@@ -20,8 +20,8 @@ public class Agent{
     this.cellGrid = createCells();
     //Create pairs of constraints
     initQ();
-    printSolution();
-    System.out.println( "hi" );
+    //printSolution();
+    //System.out.println( "hi" );
     //Solve sudoku puzzle using AC3 algorithm
     Boolean solvable = solveAC3();
     printSolution();
@@ -44,9 +44,10 @@ public class Agent{
         if(current.revise()){
           //There is a value that in current.X that current.Y does not contain.
           //I can't simply remove that value from Y, I need to remove other values from X and keep that one
-          this.queueConstraints = this.grid.constrainCol(current.getX().getRow(), current.getX().getColumn(), this.cellGrid, this.queueConstraints); //Assign arc constraints for all entries in that row
-          this.queueConstraints = this.grid.constrainRow(current.getX().getRow(), current.getX().getColumn(), this.cellGrid, this.queueConstraints); //Assign arc constraints for all entries in that column
-          this.queueConstraints = this.grid.constrainSquare(current.getX().getRow(), current.getX().getColumn(), this.cellGrid, this.queueConstraints); //Assign arc constraints for all entries in grid          
+          //System.out.println( " hi " );
+          this.queueConstraints = this.grid.constrainCol(current.getX().getColumn(), current.getX().getRow(), this.cellGrid, this.queueConstraints, false); //Assign arc constraints for all entries in that row
+          this.queueConstraints = this.grid.constrainRow(current.getX().getColumn(), current.getX().getRow(), this.cellGrid, this.queueConstraints, false); //Assign arc constraints for all entries in that column
+          this.queueConstraints = this.grid.constrainSquare(current.getX().getColumn(), current.getX().getRow(), this.cellGrid, this.queueConstraints, false); //Assign arc constraints for all entries in grid
         }else{
           //return false;
         }
@@ -62,9 +63,9 @@ public class Agent{
     //For each entry in cellGrid we want to create an arc of the entry and its constraining neighbor
     for (Integer i = 0; i<9; i++) {
       for (Integer j = 0; j<9; j++) {
-          this.queueConstraints = this.grid.constrainCol(i, j, this.cellGrid, this.queueConstraints); //Assign arc constraints for all entries in that row
-          this.queueConstraints = this.grid.constrainRow(i, j, this.cellGrid, this.queueConstraints); //Assign arc constraints for all entries in that column
-          this.queueConstraints = this.grid.constrainSquare(i, j, this.cellGrid, this.queueConstraints); //Assign arc constraints for all entries in grid
+          this.queueConstraints = this.grid.constrainCol(i, j, this.cellGrid, this.queueConstraints, true); //Assign arc constraints for all entries in that row
+          this.queueConstraints = this.grid.constrainRow(i, j, this.cellGrid, this.queueConstraints, true); //Assign arc constraints for all entries in that column
+          this.queueConstraints = this.grid.constrainSquare(i, j, this.cellGrid, this.queueConstraints, true); //Assign arc constraints for all entries in grid
       }
     }
   }
@@ -90,8 +91,8 @@ public class Agent{
         }
 
       }
-      printThisDomain(rowDomain);
-      System.out.println( " ughh" );
+      //printThisDomain(rowDomain);
+      //System.out.println( " ughh" );
       result = this.grid.constrainDomain(rowDomain, result, i, true); //Constrain all entries in row
       result = this.grid.constrainDomain(colDomain, result, i, false); //Constrain all entries in column
     }
